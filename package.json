@@ -1,0 +1,24 @@
+{
+  "name": "ts-enum-next",
+  "version": "1.0.0",
+  "description": "Ultimate Enum Enhancement for TypeScript",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "pnpm run build"
+  },
+  "keywords": [
+    "typescript",
+    "enum",
+    "enhancement",
+    "utility",
+    "enum-next",
+    "java"
+  ],
+  "author": "rico",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
