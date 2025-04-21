@@ -48,9 +48,9 @@ class HttpStatus extends Enum<number> {
 }
 ```
 
-### 使用数据字典
+### Using a data dictionary
 
-* 获取字典项 
+* Get dictionary items
 
 ```ts
 console.log(HttpStatus.OK.description); // "Request succeeded"
@@ -58,14 +58,14 @@ console.log(HttpStatus.fromValue(404).name); // "NOT_FOUND"
 console.log(HttpStatus.fromName("BAD_REQUEST").value); // 400
 ```
 
-* 获取所有枚举值
+* Get all enum values
 
 ```ts
 const allStatuses = HttpStatus.values();
 console.log(allStatuses.map(s => s.name)); // ["OK", "BAD_REQUEST", "NOT_FOUND"]
 ```
 
-* 使用枚举集合
+* Using enumeration collection
 
 ```ts
 const errorStatuses = HttpStatus.setOf(
@@ -75,7 +75,7 @@ const errorStatuses = HttpStatus.setOf(
 console.log(errorStatuses.has(HttpStatus.fromValue(400))); // true
 ```
 
-* 使用枚举映射表
+* Using enumeration map
 
 ```ts
 const statusMessages = HttpStatus.enumMap({
