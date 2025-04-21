@@ -16,6 +16,11 @@
     "enum-next",
     "java"
   ],
+  "files": [
+    "dist",
+    "README.md",
+    "README.zh-CN.md"
+  ],
   "author": "rico",
   "license": "ISC",
   "devDependencies": {
