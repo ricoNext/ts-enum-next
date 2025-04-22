@@ -1,14 +1,8 @@
-# ts-enum-next
+# 使用 ts-enum-next 优雅的管理 typeScript enum
 
-<b>English | <a href="./README.zh-CN.md">中文</a></b>
+在业务中，我们可能需要同时定义枚举值和枚举值说明，前者用来匹配，后者用来展示。
 
-- TypeScript 中下一代枚举的终极解决方案
-
-- 像在 java 中使用 enum 一样，在 typescript 中定义和使用 enum。
-
-## 为什么？ 
-
-在 typescript 中使用 enum 来定义数字枚举和字符串枚举是非常方便的， 但是在面对一些数字字典类型的枚举做定义时就有点力不从心, 比如我们定义一组状态时需要同时定义状态的名称， 我们可以就需要结合 typescript 中的枚举和映射对象来实现
+在 typescript 中可以使用 ***枚举 + 映射对象***的方式实现。
 
 ```ts
 enum Status {
@@ -28,64 +22,237 @@ console.log(Status.PENDING); // 0
 console.log(StatusDescriptions[Status.PENDING]); // "等待处理"
 ```
 
-在简单的项目中，这样维护“数据字典”是一个不错的方法， 但是在复杂的项目中，我们可能会需要维护大量的“数据字典”， 并且这些“数据字典” 可能需要一些继承一些“字典” 生成新的“字典”，或者业务中我们对一组枚举值中的不同描述展示不同的颜色或者执行不同的方法，这时 typescript 原生的 enum 就开始显得力不从心了
+或者使用对象字面量模拟枚举
 
-ts-enum-next 根据 java 中对于 enum 的定义和使用，提供了一套类似于 java 的 enum 定义和使用范式， 你可以实现基于 Class 的枚举定义和使用。
+```ts
+const Status = {
+    PENDING: {
+        value: 0,
+        description: "等待处理"
+    },
+    APPROVED: {
+        value: 1,
+        description: "已批准"
+    },
+    REJECTED: {
+        value: 2,
+        description: "已拒绝"
+    }
+} as const;
 
-
-## 使用
-
-### 安装
-
-```bash
-pnpm add ts-enum-next
+// 使用示例
+console.log(Status.PENDING.value); // 0
+console.log(Status.PENDING.description); // "等待处理"
 ```
 
-### 定义数据字典
+在业务中，我们除了需要这样简单的枚举定义类型， 我们还会需要处理很多`数据字典`的业务场景。尤其是在以 Node 构建的服务端， 可能需要使用类的能力来定义这些枚举值， 以方便包含其他字段、方法、构造函数、描述元数据等能力。
+
+[ts-enum-next](url) 根据在 Java 中使用 enum 的场景，封装了一个抽象类 Enum 和一些辅助的工具类型， 来提供类似 Java 的枚举功能：
+
+* Java 形式的数据定义
+* 丰富的枚举元数据
+* 双向查找能力
+* 枚举集合操作
+* 自定义行为支持
+
+## ts-enum-next 的使用场景
+
+### 场景1： 基础枚举定义（带值和描述）
+
+定义枚举时， 同时添加： 枚举值、枚举名称、枚举描述元数据（可选）
+
 ```ts
+import { Enum } from 'ts-enum-next';
+
 class HttpStatus extends Enum<number> {
-	static readonly OK = new HttpStatus(200, 'OK', '请求成功');
-	static readonly BAD_REQUEST = new HttpStatus(400, 'BAD_REQUEST', '错误请求');
-	static readonly NOT_FOUND = new HttpStatus(404, 'NOT_FOUND');
+    static readonly OK = new HttpStatus(200, "OK", "请求成功");
+    static readonly BAD_REQUEST = new HttpStatus(400, "BAD_REQUEST", "错误请求");
+    static readonly NOT_FOUND = new HttpStatus(404, "NOT_FOUND", "资源未找到");
+}
+
+
+// 使用示例
+console.log(HttpStatus.OK.value); // 200
+console.log(HttpStatus.OK.name); // "OK"
+console.log(HttpStatus.OK.description); // "请求成功"
+```
+#### 适用场景
+
+-  需要为枚举值附加元信息（如状态码描述）
+-  需要根据数值快速查找对应的枚举实例
+-  需要保持严格的类型安全
+
+### 场景2： 枚举集合操作
+
+```ts
+// 获取所有枚举实例， 返回的是所有的枚举类
+console.log(HttpStatus.values());  // [HttpStatus, HttpStatus, HttpStatus, ....]
+
+
+
+ // 通过值获取枚举实例
+ console.log(HttpStatus.fromValue(200));  // HttpStatus(200, "OK", "请求成功")
+ 
+ // 通过名称获取枚举实例
+  console.log(HttpStatus.fromName('OK'));  // HttpStatus(200, "OK", "请求成功")
+  
+  
+  
+ // 创建枚举集合
+const errorStatus = HttpStatus.setOf(
+       HttpStatus.BAD_REQUEST,  
+       HttpStatus.NOT_FOUND
+);
+
+console.log(errorStatus); // Set(2) {HttpStatus, HttpStatus}
+
+
+// 检查包含关系
+const currentStatus = HttpStatus.fromValue(400)
+
+if (errorStatus.has(currentStatus))) {
+    console.error("当前是错误状态:", currentStatus.description);
 }
 ```
 
-### 使用数据字典
+**适用场景**：
 
-* 获取字典项 
 
-```ts
-console.log(HttpStatus.OK.description); // "请求成功"
-console.log(HttpStatus.fromValue(404).name); // "NOT_FOUND"
-console.log(HttpStatus.fromName("BAD_REQUEST").value); // 400
+-   需要分组管理枚举值（如所有错误状态）
+-   需要检查枚举值是否属于某个特定集合
+-   需要遍历枚举的所有可能值
+
+### 场景 3：枚举映射表
+
 ```
-
-* 获取所有枚举值
-
-```ts
-const allStatuses = HttpStatus.values();
-console.log(allStatuses.map(s => s.name)); // ["OK", "BAD_REQUEST", "NOT_FOUND"]
-```
-
-* 使用枚举集合
-
-```ts
-const errorStatuses = HttpStatus.setOf(
-    HttpStatus.BAD_REQUEST,
-    HttpStatus.NOT_FOUND
-);
-console.log(errorStatuses.has(HttpStatus.fromValue(400))); // true
-```
-
-* 使用枚举映射表
-
-```ts
-const statusMessages = HttpStatus.enumMap({
-    [HttpStatus.OK.value]: "操作成功",
-    [HttpStatus.BAD_REQUEST.value]: "请求错误",
-    "NOT_FOUND": "资源不存在" // 支持名称或值作为键
+// 创建枚举到字符串的映射
+const statusMessages = HttpStatus.enumMap<string>({
+    [HttpStatus.OK]: "操作成功完成",
+    [HttpStatus.BAD_REQUEST]: "请检查您的请求参数",
+    [HttpStatus.NOT_FOUND]: "请求的资源不存在"
 });
-console.log(statusMessages.get(HttpStatus.NOT_FOUND)); // "资源不存在"
-``
+
+// 使用映射
+console.log(statusMessages.get(HttpStatus.NOT_FOUND)); // “请求的资源不存在”
+```
+**适用场景**：
+
+-   需要为不同枚举值关联不同的数据
+-   需要高效查找枚举对应的资源
+-   需要类型安全的键值存储
+
+### 场景 4：自定义枚举方法
+
+```ts
+class OrderStatus extends Enum<number> {
+    static readonly CREATED = new OrderStatus(0, "CREATED");
+    static readonly PAID = new OrderStatus(1, "PAID");
+    static readonly SHIPPED = new OrderStatus(2, "SHIPPED");
+    
+    private constructor(
+        public readonly value: number,
+        public readonly name: string
+    ) {
+        super();
+    }
+    
+    // 自定义方法
+    public canTransitionTo(target: OrderStatus): boolean {
+        const validTransitions = {
+            [OrderStatus.CREATED.value]: [OrderStatus.PAID.value],
+            [OrderStatus.PAID.value]: [OrderStatus.SHIPPED.value]
+        };
+        return validTransitions[this.value]?.includes(target.value) || false;
+    }
+}
+
+// 使用自定义方法
+const current = OrderStatus.CREATED;
+console.log(current.canTransitionTo(OrderStatus.PAID)); // true
+console.log(current.canTransitionTo(OrderStatus.SHIPPED)); // false
+```
+
+**适用场景**：
+
+-   需要为枚举添加业务逻辑
+-   需要实现状态机或工作流
+-   需要封装枚举相关的复杂判断逻辑
+
+### 场景 5：枚举序列化/反序列化
+
+```ts
+class UserRole extends Enum<string> {
+    static readonly ADMIN = new UserRole("admin", "Administrator");
+    static readonly EDITOR = new UserRole("editor", "Content Editor");
+    static readonly VIEWER = new UserRole("viewer", "Read-only User");
+    
+    private constructor(
+        public readonly value: string,
+        public readonly displayName: string
+    ) {
+        super();
+    }
+    
+    // JSON序列化
+    public toJSON() {
+        return this.value;
+    }
+    
+    // 从JSON反序列化
+    public static fromJSON(value: string): UserRole {
+        return UserRole.fromValue(value);
+    }
+}
+
+// 序列化示例
+const role = UserRole.ADMIN;
+const json = JSON.stringify(role); // ""admin""
+
+// 反序列化示例
+const parsedRole = UserRole.fromJSON(JSON.parse(json));
+console.log(parsedRole === UserRole.ADMIN); // true
+```
+
+**适用场景**：
+
+-   需要将枚举与JSON相互转换
+-   需要处理API响应中的枚举值
+-   需要保持前后端枚举值的一致性
+
+### 场景 6：获取原始枚举值类型
+
+```ts
+import { Enum， EnumValues } from 'ts-enum-next';
+
+class HttpStatus extends Enum<200 ｜ 400 ｜ 404> {
+    static readonly OK = new HttpStatus(200, "OK", "请求成功");
+    static readonly BAD_REQUEST = new HttpStatus(400, "BAD_REQUEST", "错误请求");
+    static readonly NOT_FOUND = new HttpStatus(404, "NOT_FOUND", "资源未找到");
+}
+
+// 获取HttpStatus 的原始枚举值类型
+export type HttpStatusEnum = EnumValues<typeof HttpStatus>;
+
+// 使用原始枚举值类型再去定义其他类型
+export type ResponseData<T> = {
+	message: string;
+	data: T;
+	code: HttpStatusEnum;
+};
+```
+
+**适用场景**：
+
+-   需要获取原始枚举值类型
+-   使用原始枚举值类型再去定义其他类型
+
+
+
+
+
+
+
+
+
 
 

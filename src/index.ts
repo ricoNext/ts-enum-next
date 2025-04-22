@@ -1,9 +1,9 @@
 type EnumValueType = number | string;
 
-abstract class Enum<T extends EnumValueType> {
-	private static _values: Map<typeof Enum, Enum<any>[]> = new Map();
-	private static _valueMap: Map<typeof Enum, Map<EnumValueType, Enum<any>>> = new Map();
-	private static _nameMap: Map<typeof Enum, Map<string, Enum<any>>> = new Map();
+abstract class Enum<T extends string | number = string | number> {
+	private static _values: Map<typeof Enum, Enum[]> = new Map();
+	private static _valueMap: Map<typeof Enum, Map<any, Enum>> = new Map();
+	private static _nameMap: Map<typeof Enum, Map<string, Enum>> = new Map();
 
 	constructor(
 		public readonly value: T,
@@ -26,12 +26,12 @@ abstract class Enum<T extends EnumValueType> {
 	}
 
 	// 获取所有枚举值
-	static values<T extends Enum<any>>(this: typeof Enum): T[] {
+	static values<T extends Enum>(): T[] {
 		return (this._values.get(this) as T[]) || [];
 	}
 
 	// 通过值获取枚举实例
-	static fromValue<T extends Enum<any>>(this: any, value: T['value']): T {
+	static fromValue<T extends Enum>(this: any, value: T['value']): T {
 		const enumInstance = this._valueMap.get(this)?.get(value);
 		if (!enumInstance) {
 			console.error(`No enum value ${value} found`);
@@ -40,7 +40,7 @@ abstract class Enum<T extends EnumValueType> {
 	}
 
 	// 通过名称获取枚举实例
-	static fromName<T extends Enum<any>>(this: typeof Enum, name: string): T {
+	static fromName<T extends Enum>(this: any, name: string): T {
 		const enumInstance = this._nameMap.get(this)?.get(name);
 		if (!enumInstance) {
 			console.error(`No enum name ${name} found`);
@@ -49,15 +49,15 @@ abstract class Enum<T extends EnumValueType> {
 	}
 
 	// 创建枚举集合
-	static setOf<T extends Enum<any>>(this: new () => T, ...items: T[]): Set<T> {
+	static setOf<T extends Enum>(this: any, ...items: T[]): Set<T> {
 		return new Set(items);
 	}
 
 	// 创建枚举映射表
-	static enumMap<T extends Enum<any>, V>(this: typeof Enum, map: Record<string | number, V>): Map<T, V> {
-		const result = new Map<T, V>();
+	static enumMap<V>(this: any, map: Record<string | number, V>): Map<Enum, V> {
+		const result = new Map<Enum, V>();
 		for (const [key, value] of Object.entries(map)) {
-			const enumKey = isNaN(Number(key)) ? (this.fromName(key) as T) : (this.fromValue(key as any) as T);
+			const enumKey = isNaN(Number(key)) ? (this.fromName(key) as Enum) : (this.fromValue(key as any) as Enum);
 			result.set(enumKey, value);
 		}
 		return result;
@@ -69,10 +69,14 @@ abstract class Enum<T extends EnumValueType> {
 	}
 
 	// 重写valueOf方法
-	valueOf(): T {
-		return this.value;
+	valueOf(): string {
+		return String(this.value);
 	}
 }
+
+export type EnumValues<T> = {
+	[K in keyof T]: T[K] extends Enum<infer V> ? V : never;
+}[keyof T];
 
 export { Enum };
 export type { EnumValueType };
