@@ -1,6 +1,6 @@
 {
   "name": "ts-enum-next",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "Ultimate Enum Enhancement for TypeScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,15 @@
     "README.md",
     "README.zh-CN.md"
   ],
-  "author": "rico",
+  "homepage": "https://github.com/ricoNext/ts-enum-next",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ricoNext/ts-enum-next.git"
+  },
+  "authors": {
+    "name": "ricoNext",
+    "email": "18028514355@163.com"
+  },
   "license": "ISC",
   "devDependencies": {
     "typescript": "^5.8.3"

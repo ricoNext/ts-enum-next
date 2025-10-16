@@ -8,7 +8,10 @@ abstract class Enum<T extends string | number = string | number> {
 	constructor(
 		public readonly value: T,
 		public readonly name: string,
-		public readonly description?: string
+		/**
+		 * @description 附加说明
+		 */
+		public readonly description?: unknown
 	) {
 		const enumClass = this.constructor as typeof Enum;
 
@@ -80,3 +83,4 @@ export type EnumValues<T> = {
 
 export { Enum };
 export type { EnumValueType };
+
