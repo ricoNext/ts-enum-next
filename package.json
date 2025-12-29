@@ -6,6 +6,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm run build"
   },
   "keywords": [
@@ -32,6 +35,8 @@
   },
   "license": "ISC",
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "@vitest/coverage-v8": "^4.0.16",
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.16"
   }
 }

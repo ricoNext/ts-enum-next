@@ -2,7 +2,7 @@ type EnumValueType = number | string;
 
 abstract class Enum<T extends string | number = string | number> {
 	private static _values: Map<typeof Enum, Enum[]> = new Map();
-	private static _valueMap: Map<typeof Enum, Map<any, Enum>> = new Map();
+	private static _valueMap: Map<typeof Enum, Map<EnumValueType, Enum>> = new Map();
 	private static _nameMap: Map<typeof Enum, Map<string, Enum>> = new Map();
 
 	constructor(
@@ -29,39 +29,54 @@ abstract class Enum<T extends string | number = string | number> {
 	}
 
 	// 获取所有枚举值
-	static values<T extends Enum>(): T[] {
-		return (this._values.get(this) as T[]) || [];
+	static values<T extends Enum>(this: new (...args: any[]) => T): T[] {
+		return (Enum._values.get(this as unknown as typeof Enum) as T[]) || [];
 	}
 
 	// 通过值获取枚举实例
-	static fromValue<T extends Enum>(this: any, value: T['value']): T {
-		const enumInstance = this._valueMap.get(this)?.get(value);
+	static fromValue<T extends Enum>(this: new (...args: any[]) => T, value: T['value']): T {
+		const enumInstance = Enum._valueMap.get(this as unknown as typeof Enum)?.get(value);
 		if (!enumInstance) {
-			console.error(`No enum value ${value} found`);
+			throw new Error(`No enum value ${value} found`);
 		}
 		return enumInstance as T;
 	}
 
 	// 通过名称获取枚举实例
-	static fromName<T extends Enum>(this: any, name: string): T {
-		const enumInstance = this._nameMap.get(this)?.get(name);
+	static fromName<T extends Enum>(this: new (...args: any[]) => T, name: string): T {
+		const enumInstance = Enum._nameMap.get(this as unknown as typeof Enum)?.get(name);
 		if (!enumInstance) {
-			console.error(`No enum name ${name} found`);
+			throw new Error(`No enum name ${name} found`);
 		}
 		return enumInstance as T;
 	}
 
 	// 创建枚举集合
-	static setOf<T extends Enum>(this: any, ...items: T[]): Set<T> {
+	static setOf<T extends Enum>(this: new (...args: any[]) => T, ...items: T[]): Set<T> {
 		return new Set(items);
 	}
 
 	// 创建枚举映射表
-	static enumMap<V>(this: any, map: Record<string | number, V>): Map<Enum, V> {
-		const result = new Map<Enum, V>();
+	static enumMap<V, T extends Enum = Enum>(
+		this: new (...args: any[]) => T,
+		map: Record<string | number, V>
+	): Map<T, V> {
+		const result = new Map<T, V>();
 		for (const [key, value] of Object.entries(map)) {
-			const enumKey = isNaN(Number(key)) ? (this.fromName(key) as Enum) : (this.fromValue(key as any) as Enum);
-			result.set(enumKey, value);
+			// 判断 key 是否为纯数字字符串
+			const isNumericKey = /^\d+$/.test(key);
+			let enumKey: T | undefined;
+			try {
+				enumKey = isNumericKey
+					? ((this as any).fromValue(Number(key) as T['value']) as T)
+					: ((this as any).fromName(key) as T);
+			} catch {
+				// 如果找不到对应的枚举值，跳过该键
+				continue;
+			}
+			if (enumKey) {
+				result.set(enumKey, value);
+			}
 		}
 		return result;
 	}
