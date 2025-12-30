@@ -1,5 +1,7 @@
 # ts-enum-next
 
+[![codecov](https://codecov.io/github/ricoNext/ts-enum-next/branch/main/graph/badge.svg?token=HI4FJO2405)](https://codecov.io/github/ricoNext/ts-enum-next)
+
 <b>English | <a href="./README.zh-CN.md">中文</a></b>
 
 A TypeScript library that helps with the enum pattern.
