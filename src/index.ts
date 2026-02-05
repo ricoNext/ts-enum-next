@@ -34,21 +34,19 @@ abstract class Enum<T extends string | number = string | number> {
 	}
 
 	// 通过值获取枚举实例
-	static fromValue<T extends Enum>(this: new (...args: any[]) => T, value: T['value']): T {
-		const enumInstance = Enum._valueMap.get(this as unknown as typeof Enum)?.get(value);
-		if (!enumInstance) {
-			throw new Error(`No enum value ${value} found`);
-		}
-		return enumInstance as T;
+	static fromValue<T extends Enum>(this: new (...args: any[]) => T, value: T['value']): T | undefined {
+		if (value === undefined || value === null) return undefined;
+		const valueMap = Enum._valueMap.get(this as unknown as typeof Enum);
+		if (!valueMap) return undefined;
+		return valueMap.get(value) as T | undefined;
 	}
 
 	// 通过名称获取枚举实例
-	static fromName<T extends Enum>(this: new (...args: any[]) => T, name: string): T {
-		const enumInstance = Enum._nameMap.get(this as unknown as typeof Enum)?.get(name);
-		if (!enumInstance) {
-			throw new Error(`No enum name ${name} found`);
-		}
-		return enumInstance as T;
+	static fromName<T extends Enum>(this: new (...args: any[]) => T, name: string): T | undefined {
+		if (name === undefined || name === null || name === '') return undefined;
+		const nameMap = Enum._nameMap.get(this as unknown as typeof Enum);
+		if (!nameMap) return undefined;
+		return nameMap.get(name) as T | undefined;
 	}
 
 	// 创建枚举集合
@@ -99,3 +97,18 @@ export type EnumValues<T> = {
 export { Enum };
 export type { EnumValueType };
 
+
+
+/**
+ * 枚举数组, 用于 Antd Select 组件的 options 参数
+ * @param enums
+ * @returns
+ */
+export const enumOptions = (
+	enums: any
+) =>
+	enums.values().map((i: any) => ({
+		...i,
+		label: i.name,
+		value: i.value,
+	}));

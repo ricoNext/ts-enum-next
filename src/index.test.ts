@@ -88,13 +88,13 @@ describe('Enum', () => {
 		it('should find enum by numeric value', () => {
 			const status = HttpStatus.fromValue(200);
 			expect(status).toBe(HttpStatus.OK);
-			expect(status.name).toBe('OK');
+			expect(status!.name).toBe('OK');
 		});
 
 		it('should find enum by string value', () => {
 			const status = OrderStatus.fromValue('PENDING');
 			expect(status).toBe(OrderStatus.PENDING);
-			expect(status.name).toBe('Pending');
+			expect(status!.name).toBe('Pending');
 		});
 
 		it('should find different enum instances by different values', () => {
@@ -103,12 +103,17 @@ describe('Enum', () => {
 			expect(HttpStatus.fromValue(500)).toBe(HttpStatus.SERVER_ERROR);
 		});
 
-		it('should throw error for non-existent numeric value', () => {
-			expect(() => HttpStatus.fromValue(999)).toThrow('No enum value 999 found');
+		it('should return undefined for non-existent numeric value', () => {
+			expect(HttpStatus.fromValue(999)).toBeUndefined();
 		});
 
-		it('should throw error for non-existent string value', () => {
-			expect(() => OrderStatus.fromValue('INVALID')).toThrow('No enum value INVALID found');
+		it('should return undefined for non-existent string value', () => {
+			expect(OrderStatus.fromValue('INVALID')).toBeUndefined();
+		});
+
+		it('should return undefined when value is null or undefined', () => {
+			expect(HttpStatus.fromValue(undefined as any)).toBeUndefined();
+			expect(HttpStatus.fromValue(null as any)).toBeUndefined();
 		});
 	});
 
@@ -116,13 +121,13 @@ describe('Enum', () => {
 		it('should find enum by name', () => {
 			const status = HttpStatus.fromName('OK');
 			expect(status).toBe(HttpStatus.OK);
-			expect(status.value).toBe(200);
+			expect(status!.value).toBe(200);
 		});
 
 		it('should find enum by name for string value enum', () => {
 			const status = OrderStatus.fromName('Pending');
 			expect(status).toBe(OrderStatus.PENDING);
-			expect(status.value).toBe('PENDING');
+			expect(status!.value).toBe('PENDING');
 		});
 
 		it('should find different enum instances by different names', () => {
@@ -131,12 +136,18 @@ describe('Enum', () => {
 			expect(HttpStatus.fromName('SERVER_ERROR')).toBe(HttpStatus.SERVER_ERROR);
 		});
 
-		it('should throw error for non-existent name', () => {
-			expect(() => HttpStatus.fromName('INVALID')).toThrow('No enum name INVALID found');
+		it('should return undefined for non-existent name', () => {
+			expect(HttpStatus.fromName('INVALID')).toBeUndefined();
 		});
 
 		it('should be case-sensitive', () => {
-			expect(() => HttpStatus.fromName('ok')).toThrow('No enum name ok found');
+			expect(HttpStatus.fromName('ok')).toBeUndefined();
+		});
+
+		it('should return undefined when name is null, undefined or empty string', () => {
+			expect(HttpStatus.fromName(undefined as any)).toBeUndefined();
+			expect(HttpStatus.fromName(null as any)).toBeUndefined();
+			expect(HttpStatus.fromName('')).toBeUndefined();
 		});
 	});
 
@@ -294,13 +305,13 @@ describe('Enum', () => {
 
 		it('should not interfere with each other when querying by value', () => {
 			// 虽然值相同，但是不同的枚举类
-			expect(() => HttpStatus.fromValue('PENDING' as any)).toThrow();
-			expect(() => OrderStatus.fromValue(200 as any)).toThrow();
+			expect(HttpStatus.fromValue('PENDING' as any)).toBeUndefined();
+			expect(OrderStatus.fromValue(200 as any)).toBeUndefined();
 		});
 
 		it('should not interfere with each other when querying by name', () => {
-			expect(() => HttpStatus.fromName('Pending')).toThrow();
-			expect(() => OrderStatus.fromName('OK')).toThrow();
+			expect(HttpStatus.fromName('Pending')).toBeUndefined();
+			expect(OrderStatus.fromName('OK')).toBeUndefined();
 		});
 	});
 
@@ -313,7 +324,7 @@ describe('Enum', () => {
 
 			// 最后一个定义的会覆盖前面的（Map 的行为）
 			const found = DuplicateValueEnum.fromValue(1);
-			expect(found.name).toBe('SECOND');
+			expect(found!.name).toBe('SECOND');
 		});
 
 		it('should handle description as different types', () => {

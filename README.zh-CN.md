@@ -148,7 +148,7 @@ if (errorStatus.has(currentStatus))) {
 
 ### 场景 3：枚举映射表
 
-```
+```ts
 // 创建枚举到字符串的映射
 const statusMessages = HttpStatus.enumMap<string>({
     [HttpStatus.OK]: "操作成功完成",
@@ -158,6 +158,26 @@ const statusMessages = HttpStatus.enumMap<string>({
 
 // 使用映射
 console.log(statusMessages.get(HttpStatus.NOT_FOUND)); // “请求的资源不存在”
+```
+
+### 场景 7：为 Ant Design `Select` 生成枚举下拉项
+
+```ts
+import { Enum, enumOptions } from "ts-enum-next";
+
+class HttpStatus extends Enum<number> {
+    static readonly OK = new HttpStatus(200, "OK", "请求成功");
+    static readonly BAD_REQUEST = new HttpStatus(400, "BAD_REQUEST", "错误请求");
+    static readonly NOT_FOUND = new HttpStatus(404, "NOT_FOUND", "资源未找到");
+}
+
+const options = enumOptions(HttpStatus);
+// options:
+// [
+//   { label: "OK", value: 200 },
+//   { label: "BAD_REQUEST", value: 400 },
+//   { label: "NOT_FOUND", value: 404 }
+// ]
 ```
 
 **适用场景**：
