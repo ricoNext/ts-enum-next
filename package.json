@@ -1,6 +1,6 @@
 {
   "name": "ts-enum-next",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Ultimate Enum Enhancement for TypeScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

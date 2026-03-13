@@ -267,6 +267,55 @@ describe('Enum', () => {
 		});
 	});
 
+	describe('enumOptions()', () => {
+		it('should return options array for numeric enum', () => {
+			const options = HttpStatus.enumOptions();
+			expect(options).toHaveLength(5);
+			expect(options[0]).toEqual({
+				value: 200,
+				name: 'OK',
+				description: 'Request succeeded',
+				label: 'OK'
+			});
+		});
+
+		it('should return options array for string enum', () => {
+			const options = OrderStatus.enumOptions();
+			expect(options).toHaveLength(4);
+			expect(options[0]).toEqual({
+				value: 'PENDING',
+				name: 'Pending',
+				description: 'Order is pending',
+				label: 'Pending'
+			});
+		});
+
+		it('should return options array for enum without description', () => {
+			const options = Priority.enumOptions();
+			expect(options).toHaveLength(3);
+			expect(options[0]).toEqual({
+				value: 1,
+				name: 'LOW',
+				description: undefined,
+				label: 'LOW'
+			});
+		});
+
+		it('should have correct label and value for each option', () => {
+			const options = HttpStatus.enumOptions();
+			const okOption = options.find(opt => opt.value === 200);
+			expect(okOption!.label).toBe('OK');
+			expect(okOption!.value).toBe(200);
+		});
+
+		it('should preserve all enum properties in options', () => {
+			const options = HttpStatus.enumOptions();
+			const notFoundOption = options.find(opt => opt.value === 404);
+			expect(notFoundOption!.name).toBe('NOT_FOUND');
+			expect(notFoundOption!.description).toBe('Resource not found');
+		});
+	});
+
 	describe('toString()', () => {
 		it('should return the name', () => {
 			expect(HttpStatus.OK.toString()).toBe('OK');

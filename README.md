@@ -98,7 +98,7 @@ console.log(statusMessages.get(HttpStatus.NOT_FOUND)); // "The resource does not
 - Generate options for Ant Design `Select`
 
 ```ts
-import { Enum, enumOptions } from "ts-enum-next";
+import { Enum } from "ts-enum-next";
 
 class HttpStatus extends Enum<number> {
   static readonly OK = new HttpStatus(200, "OK", "Request succeeded");
@@ -110,12 +110,12 @@ class HttpStatus extends Enum<number> {
   static readonly NOT_FOUND = new HttpStatus(404, "NOT_FOUND");
 }
 
-const options = enumOptions(HttpStatus);
+const options = HttpStatus.enumOptions();
 // options:
 // [
-//   { label: "OK", value: 200 },
-//   { label: "BAD_REQUEST", value: 400 },
-//   { label: "NOT_FOUND", value: 404 }
+//   { label: "OK", value: 200, name: "OK", description: "Request succeeded" },
+//   { label: "BAD_REQUEST", value: 400, name: "BAD_REQUEST", description: "Error request" },
+//   { label: "NOT_FOUND", value: 404, name: "NOT_FOUND" }
 // ]
 ```
 

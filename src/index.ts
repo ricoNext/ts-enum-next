@@ -79,6 +79,16 @@ abstract class Enum<T extends string | number = string | number> {
 		return result;
 	}
 
+	// 获取枚举选项数组，用于 Ant Design Select 组件
+	static enumOptions<T extends Enum>(this: new (...args: any[]) => T): Array<T & { label: string; value: T['value'] }> {
+		const values = (this as any).values() as T[];
+		return values.map((i) => ({
+			...i,
+			label: i.name,
+			value: i.value,
+		}));
+	}
+
 	// 重写toString方法
 	toString(): string {
 		return this.name;
